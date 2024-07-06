@@ -11,6 +11,14 @@ builder.Services.AddDbContext<AppDbContext>(options => {
     });
 var app = builder.Build();
 
+// Inicializa la base de datos aquí, después de que el app es construido.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.InitializeDatabase(); // Llama al método de inicialización
+}
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -28,6 +36,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Users}/{action=LogIn}/{id?}");
 
 app.Run();

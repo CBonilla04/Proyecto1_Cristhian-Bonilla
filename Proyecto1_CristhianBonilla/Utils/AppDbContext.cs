@@ -17,6 +17,11 @@ namespace Proyecto1_CristhianBonilla.Utils
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+            
+        }
+
+        public void InitializeDatabase()
+        {
             try
             {
                 var dbCreator = Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
@@ -36,8 +41,7 @@ namespace Proyecto1_CristhianBonilla.Utils
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }   
-            
+            }
         }
     }
 }
