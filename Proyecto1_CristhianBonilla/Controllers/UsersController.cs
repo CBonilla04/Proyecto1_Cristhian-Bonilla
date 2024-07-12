@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto1_CristhianBonilla.Models;
+using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
 
 namespace Proyecto1_CristhianBonilla.Controllers
@@ -10,10 +11,12 @@ namespace Proyecto1_CristhianBonilla.Controllers
     {
 
         private readonly AppDbContext _appDbContext;
+        private readonly IAmadeusApiService _amadeusApiService;
 
-        public UsersController(AppDbContext appDbContext)
+        public UsersController(AppDbContext appDbContext, IAmadeusApiService amadeusApiService)
         {
             _appDbContext = appDbContext;
+            _amadeusApiService = amadeusApiService;
         }
 
 
@@ -43,7 +46,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Login(Users user)
-        {
+        {   
             try
             {
                 var userLogin = await _appDbContext.Users.Where(u => u.IdUser == user.IdUser && u.Password == user.Password).FirstOrDefaultAsync();
@@ -52,7 +55,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                     return RedirectToAction("AddUser");
                 }
                 ViewData["Message"] = user.IdUser != 0 ? "Usuario o contraseña incorrectos" :  null;
-                return View();
+                return View(user);
             }
             catch (Exception ex)
             {

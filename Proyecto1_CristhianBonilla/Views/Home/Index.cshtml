@@ -1,8 +1,403 @@
-﻿@{
+﻿@model Proyecto1_CristhianBonilla.ViewModels.Filters
+@{
     ViewData["Title"] = "Home Page";
 }
+<link rel="stylesheet" href="~/css/Select2.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="~/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script>
+    // Convertir la duración de formato ISO 8601 a HH:MM
+    function convertIso8601DurationToTime(duration) {
+        const match = duration.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match[1] ? match[1].slice(0, -1).padStart(2, '0') : '00';
+        const minutes = match[2] ? match[2].slice(0, -1).padStart(2, '0') : '00';
+        return `${hours}:${minutes}`;
+    }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    function convertPassengerType(passenger) {
+        let passengerType = '';
+        switch (passenger) {
+            case 'ADULT':
+                passengerType = 'Adulto';
+                break;
+            case 'CHILD':
+                passengerType = 'Niño';
+                break;
+            case 'HELD_INFANT':
+                passengerType = 'Bebé';
+                break;
+            default:
+                passengerType = 'Desconocido';
+                break;
+        }
+        return passengerType;
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#destino').select2({
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Home/SearchAirports',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        keyword: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Datos recibidos:", data);
+                    return {
+                        results: data.map(function (airport) {
+                            return {
+                                id: airport.iataCode,
+                                text: airport.iataCode + " (" + airport.address.cityName + " - " + airport.address.countryName + ")"
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Seleccionar destino',
+            allowClear: true
+        });
+
+        $('#origen').select2({
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Home/SearchAirports',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        keyword: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Datos recibidos:", data);
+                    return {
+                        results: data.map(function (airport) {
+                            return {
+                                id: airport.iataCode,
+                                text: airport.iataCode + " (" + airport.address.cityName + " - " + airport.address.countryName + ")"
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Seleccionar origen',
+            allowClear: true
+        });
+        //$("#buscarVuelos").on("click", function (e) {
+        //     e.preventDefault();
+        //     var form = $("form").serialize();
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "/Home/getFlights",
+        //         data: form,
+        //         success: function (data) {
+        //             console.log("Datos recibidos:", data);
+        //             // Procesar y mostrar los datos de flightOffers aquí
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error("Error en la solicitud:", error);
+        //         }
+        //     });
+        // });
+
+        $("#buscarVuelos").on("click", function (e) {
+            e.preventDefault();
+            var form = $("form").serialize();
+            $.ajax({
+                type: "GET",
+                url: "/Home/getFlights",
+                data: form,
+                success: function (data) {
+                    console.log("Datos recibidos:", data);
+                    // Limpia el contenedor de resultados anteriores
+                    $("#resultadosVuelos").empty();
+                    // Itera sobre los datos recibidos para crear las tarjetas
+                    data.data.forEach(function (flight, index) {
+                        var cardHtml = `
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${flight.itineraries[0].segments[0].departure.iataCode} a ${flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}</h5>
+                                        <p class="card-text">Fecha de salida: ${flight.itineraries[0].segments[0].departure.at}</p>
+                                        <p class="card-text">Fecha de llegada: ${flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at}</p>
+                                        <p class="card-text">Boleto ida y vuelta: ${flight.itineraries.length > 1 ? 'Sí' : 'No'}</p>
+                                        <p class="card-text">Escalas: ${flight.itineraries[0]?.segments?.length || flight.itineraries[1]?.segments?.length > 1 ? 'Sí' : 'No'}
+                                            <button class="btn btn-primary btn-sm verEscalas" data-index="${index}" data-toggle="modal" data-target="#escalasModal">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </p>
+                                        <p class="card-text"><strong>Precio total: <strong>${flight.price.total} ${flight.price.currency}</strong></p>
+                                        <button class="btn btn-primary verDetalles" data-index="${index}" data-toggle="modal" data-target="#detalleVueloModal">Ver Detalles</button>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button class="btn btn-success addToCar" data-index="${index}" data-flight='${JSON.stringify(flight)}'>Agregar a carrito</button>
+                                    </div>
+                                </div>
+                            `;
+                        $("#resultadosVuelos").append(cardHtml);
+                    });
+
+                    //funcionalidad agregar carrito
+                    $(".addToCar").on("click", function () {
+                        var flight = $(this).data('flight');
+                        $.ajax({
+                            type: "POST",
+                            url: "/Home/AddToCart",
+                            contentType: "application/json",
+                            data: JSON.stringify({ flight: flight }),
+                            success: function (response) {
+                                alert("Vuelo agregado al carrito.");
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error al agregar al carrito:", error);
+                            }
+                        });
+                    });
+                        //añadir manejador de eventos para los botones de escalas
+                    $(".verEscalas").on("click", function () {
+                        var index = $(this).data("index");
+                        var itineraries = data.data[index].itineraries;
+                        console.log(itineraries);
+
+                        var durationHTML = convertIso8601DurationToTime(itineraries[0]?.duration);
+                        $("#detalleEscalaModalLabel").html('Escalas' + (durationHTML ? ` - ${durationHTML}` : ''));
+
+                        $("#verEscalas").html(''); // Clear previous content
+
+                        itineraries[0]?.segments.forEach(function (scale, index) {
+                            var cardHtml = `
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Ida - ${index + 1}</h5>
+                                        <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
+                                        <p class="card-text">Fecha de salida: ${scale.departure.at}</p>
+                                        <p class="card-text">Fecha de llegada: ${scale.arrival.at}</p>
+                                        <p class="card-text">Número de vuelo: ${scale.number}</p>
+                                        <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
+                                        <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
+                                    </div>
+                                </div>
+                            `;
+                            $("#verEscalas").append(cardHtml);
+                        });
+
+                        durationHTML = convertIso8601DurationToTime(itineraries[1]?.duration);
+                        if (durationHTML) {
+                            $("#detalleEscalaModalLabel").append(` - ${durationHTML}`);
+                        }
+
+                        itineraries[1]?.segments.forEach(function (scale, index) {
+                            var cardHtml = `
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Regreso - ${index + 1}</h5>
+                                        <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
+                                        <p class="card-text">Fecha de salida: ${scale.departure.at}</p>
+                                        <p class="card-text">Fecha de llegada: ${scale.arrival.at}</p>
+                                        <p class="card-text">Número de vuelo: ${scale.number}</p>
+                                        <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
+                                        <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
+                                    </div>
+                                </div>
+                            `;
+                            $("#verEscalas").append(cardHtml);
+                        });
+                    });
+
+                    // Añadir manejador de eventos para los botones de detalles
+                    $(".verDetalles").on("click", function () {
+                        var index = $(this).data("index");
+                        console.log(data.data[index]?.travelerPricings);
+                        var flight = data.data[index];
+                        var prices = flight?.travelerPricings;
+                        var pricesDetail = '';
+                        prices.forEach(function (price, index) {
+                            pricesDetail +=
+                                `
+                                <div class="card mt-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
+                                        <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
+                                        <p class="card-text">Precio base: ${price.price.base} USD</p>
+                                            <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
+                                        <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        var detallesHtml = `
+                            <p><strong>Origen:</strong> ${flight.itineraries[0].segments[0].departure.iataCode}</p>
+                            <p><strong>Destino:</strong> ${flight.itineraries[0].segments[0].arrival.iataCode}</p>
+                            <p><strong>Duración:</strong> ${convertIso8601DurationToTime(flight.itineraries[0].duration)}</p>
+                            <h4 class="subtitle">Detalle de pago:</h4>
+                            ${pricesDetail}
+                            <p><strong>Precio Total:</strong> ${flight.price.total} ${flight.price.currency}</p>
+                            <p><strong>Aerolínea:</strong> ${flight.validatingAirlineCodes}</p>
+                            <!-- Agrega más detalles según sea necesario -->
+                        `;
+                        $("#detalleVueloContent").html(detallesHtml);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error en la solicitud:", error);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    // Convertir la duración de formato ISO 8601 a HH:MM
+    function convertIso8601DurationToTime(duration) {
+        const match = duration.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match[1] ? match[1].slice(0, -1).padStart(2, '0') : '00';
+        const minutes = match[2] ? match[2].slice(0, -1).padStart(2, '0') : '00';
+        return `${hours}:${minutes}`;
+    }
+</script>
+
+<div class="container">
+    <form asp-action="BuscarVuelos" method="post">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="col-sm-12">
+                    <label asp-for="origin" class="col-form-label">Origen:</label>
+                </div>
+                <div class="col-sm-12">
+                    <select asp-for="origin" class="form-control" id="origen" name="origin">
+                        <option value="">Seleccionar origen</option>
+                        <!-- Opciones se llenarán dinámicamente -->
+                    </select>
+                    <span asp-validation-for="origin" class="text-danger"></span>
+                </div>
+                <div class="col-sm-12">
+                    <label asp-for="destination" class="col-form-label">Destino:</label>
+                </div>
+                <div class="col-sm-12">
+                    <select asp-for="destination" class="form-control" id="destino" name="destination">
+                        <option value="">Seleccionar destino</option>
+                        <!-- Opciones se llenarán dinámicamente -->
+                    </select>
+                    <span asp-validation-for="destination" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="col-sm-12">
+                    <label asp-for="departureDate" class="col-form-label">Salida:</label>
+                </div>
+                <div class="col-sm-12">
+                    <input asp-for="departureDate" type="date" class="form-control" id="salida" name="departureDate">
+                    <span asp-validation-for="departureDate" class="text-danger"></span>
+                </div>
+                <div class="col-sm-12">
+                    <label asp-for="returnDate" class="col-form-label">Regreso:</label>
+                </div>
+                <div class="col-sm-12">
+                    <input asp-for="returnDate" type="date" class="form-control" id="regreso" name="returnDate">
+                    <span asp-validation-for="returnDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="col-sm-12">
+                    <label asp-for="adults" class="col-form-label">Adultos:</label>
+                </div>
+                <div class="col-sm-12">
+                    <select asp-for="adults" class="form-control" id="adults" name="adults">
+                        <option value="">Seleccionar opción</option>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                    <span asp-validation-for="adults" class="text-danger"></span>
+                </div>
+                <div class="col-sm-12">
+                    <label asp-for="children" class="col-form-label">Niños:</label>
+                </div>
+                <div class="col-sm-12">
+                    <select asp-for="children" class="form-control" id="children" name="children">
+                        <option value="">Seleccionar opción</option>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                    <span asp-validation-for="children" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="col-sm-12">
+                    <label asp-for="infants" class="col-form-label">Bebés:</label>
+                </div>
+                <div class="col-sm-12">
+                    <select asp-for="infants" class="form-control" id="infants" name="infants">
+                        <option value="">Seleccionar opción</option>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                    <span asp-validation-for="infants" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-success" id="buscarVuelos">Buscar</button>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div id="resultadosVuelos" class="col-sm-12">
+            
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detalleVueloModal" tabindex="-1" role="dialog" aria-labelledby="detalleVueloModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleVueloModalLabel">Detalles del Vuelo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detalleVueloContent">
+                <!-- Detalles del vuelo se mostrarán aquí -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="escalasModal" tabindex="-1" role="dialog" aria-labelledby="escalasVueloModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleEscalaModalLabel">Escalas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="verEscalas">
+                <!-- Detalles del vuelo se mostrarán aquí -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
