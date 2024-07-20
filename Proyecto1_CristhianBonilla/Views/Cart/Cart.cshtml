@@ -1,0 +1,161 @@
+﻿@model List<Proyecto1_CristhianBonilla.ViewModels.FlightOffer>
+@{
+    Func<string, string> formatoFecha = fecha =>
+        {
+            if (!string.IsNullOrEmpty(fecha))
+            {
+                return DateTime.Parse(fecha).ToString("dd 'de' MMMM 'de' yyyy HH:mm", new System.Globalization.CultureInfo("es-ES"));
+            }
+            return string.Empty;
+        };
+
+    decimal SumarPrecios(List<Proyecto1_CristhianBonilla.ViewModels.FlightOffer> ofertas)
+    {
+        decimal total = 0;
+        foreach (var oferta in ofertas)
+        {
+            total += decimal.Parse(oferta?.Price?.Total);
+        }
+        return total;
+    }
+
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+    var flights = @Html.Raw(Json.Serialize(Model));
+
+    function Eliminar(index) {
+        $.ajax({
+            url: '@Url.Action("Eliminar", "Cart")',
+            type: 'POST',
+            data: { index: index },
+            success: function () {
+                location.reload();
+            },
+            error: function () {
+                alert('Ocurrió un error al eliminar el vuelo.');
+            }
+        });
+    }
+
+    $(document).on("click", ".verDetalles", function () {
+        var index = $(this).data("index");
+        var flight = flights[index];
+        var prices = flight.travelerPricings;
+        var pricesDetail = '';
+        console.log(prices);
+        prices.forEach(function (price, index) {
+            pricesDetail += `
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
+                                <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
+                                <p class="card-text">Precio base: ${price.price.base} USD</p>
+                                <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
+                                <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
+                            </div>
+                        </div>
+                    `;
+        });
+        $("#detalleVueloContent").html(pricesDetail);
+        $('#detalleVueloModal').modal('show');
+    });
+
+    $(document).on('hidden.bs.modal', '#detalleVueloModal', function (e) {
+        // Asegurarse de que la pantalla principal esté habilitada después de cerrar el modal
+        if ($('.modal.show').length > 0) {
+            $('body').addClass('modal-open');
+        }
+    });
+
+    function convertPassengerType(type) {
+        switch (type) {
+            case 'ADULT': return 'Adulto';
+            case 'CHILD': return 'Niño';
+            case 'HELD_INFANT': return 'Bebé';
+            default: return 'Desconocido';
+        }
+    }
+
+    $(document).on('hidden.bs.modal', function (e) {
+        // Asegurarse de que la pantalla principal esté habilitada después de cerrar el modal
+        if ($('.modal.show').length > 0) {
+            $('body').addClass('modal-open');
+        } else {
+            $('.modal-backdrop').remove(); // Eliminar manualmente el backdrop
+        }
+    });
+</script>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Carrito de Compras</h2>
+
+
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Vuelo</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Hora de Salida</th>
+                <th>Hora de Llegada</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Ida y vuelta</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (item, index) in Model.Select((value, i) => (value, i)))
+            {
+                <tr>
+                    <td>@item?.Id</td>
+                    <td>@item?.Itineraries[0]?.Segments[0]?.Departure?.IataCode</td>
+                    <td>@item?.Itineraries[0]?.Segments[item.Itineraries[0].Segments.Count - 1]?.Arrival?.IataCode</td>
+                    <td>@(formatoFecha(@item?.Itineraries[0]?.Segments[0]?.Departure?.At))</td>
+                    <td>@(formatoFecha(@item?.Itineraries[0]?.Segments[item.Itineraries[0].Segments.Count - 1]?.Arrival?.At))</td>
+                    <td>@item?.TravelerPricings.Count</td>
+                    <td>$@item?.Price.Total</td>
+                    <td>@(item?.Itineraries.Count > 1 ? "Si" : "No")</td>
+                    <td>
+                        <button class="btn btn-primary verDetalles" data-index="@index" data-toggle="modal" data-target="#detalleVueloModal">Ver Detalles</button>
+                        <button class="btn btn-danger" onclick="Eliminar(@index)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td colspan="6"></td>
+                <td><b>Total:</b></td>
+                <td>$@SumarPrecios(Model)</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <div class="text-right mt-4">
+        <a asp-area="" asp-controller="Payment" asp-action="Payment" title="Realizar pago" class="btn btn-success">Proceder al Pago</a>
+    </div>
+</div>
+
+<div class="modal fade" id="detalleVueloModal" tabindex="-1" role="dialog" aria-labelledby="detalleVueloModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleVueloModalLabel">Detalles del Vuelo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detalleVueloContent">
+                <!-- Detalles del vuelo se mostrarán aquí -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

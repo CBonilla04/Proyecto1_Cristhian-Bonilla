@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Proyecto1_CristhianBonilla.Models
@@ -6,6 +7,7 @@ namespace Proyecto1_CristhianBonilla.Models
     public class PassengerType
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdPasTyp { get; set; }
 
         [Required(ErrorMessage = "El tipo de pasajero es obligatorio")]

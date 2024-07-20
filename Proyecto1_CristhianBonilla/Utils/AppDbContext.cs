@@ -20,6 +20,22 @@ namespace Proyecto1_CristhianBonilla.Utils
             
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Flights>()
+                .Property(f => f.IdFlights)
+                .ValueGeneratedOnAdd();
+
+            // Configuración adicional para otras entidades
+            modelBuilder.Entity<Reservations>()
+                .Property(r => r.IdReservation)
+                .ValueGeneratedOnAdd();
+
+            // Agrega aquí configuraciones adicionales si es necesario
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public void InitializeDatabase()
         {
             try
@@ -34,7 +50,7 @@ namespace Proyecto1_CristhianBonilla.Utils
 
                     if (!dbCreator.HasTables())
                     {
-                        dbCreator.CreateTables();
+                        dbCreator.EnsureCreated();
                     }
                 }
             }

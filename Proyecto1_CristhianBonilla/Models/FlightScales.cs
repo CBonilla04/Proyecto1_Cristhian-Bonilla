@@ -6,6 +6,7 @@ namespace Proyecto1_CristhianBonilla.Models
     public class FlightScales
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdFliSca { get; set; }
 
         [ForeignKey("IdScale")]

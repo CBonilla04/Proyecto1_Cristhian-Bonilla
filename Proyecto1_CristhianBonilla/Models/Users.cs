@@ -35,10 +35,15 @@ namespace Proyecto1_CristhianBonilla.Models
         [EmailAddress(ErrorMessage = "El email no es válido.")]
         public string Email { get; set; }
 
+        [AllowNull]
         [Column(TypeName = "varchar(MAX)")]
         public string Preferences { get; set; }
 
         public ICollection<Reservations> Reservations { get; set; }
 
+        public Users()
+        {
+            Reservations = new List<Reservations>();
+        }
     }
 }

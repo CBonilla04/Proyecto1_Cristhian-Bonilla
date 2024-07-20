@@ -148,12 +148,13 @@
 
                     //funcionalidad agregar carrito
                     $(".addToCar").on("click", function () {
-                        var flight = $(this).data('flight');
+                        var index = $(this).data("index");
+                        var flight = data.data[index];
                         $.ajax({
                             type: "POST",
                             url: "/Home/AddToCart",
                             contentType: "application/json",
-                            data: JSON.stringify({ flight: flight }),
+                            data: JSON.stringify(flight),
                             success: function (response) {
                                 alert("Vuelo agregado al carrito.");
                             },

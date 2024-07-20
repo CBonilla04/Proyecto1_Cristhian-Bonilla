@@ -82,17 +82,26 @@ namespace Proyecto1_CristhianBonilla.Services
             }
 
             var queryString = string.Join("&", queryParameters);
-            var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?{queryString}&currencyCode=USD&max=10");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            //var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?{queryString}&currencyCode=USD&max=10");
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=BKK&departureDate=2024-08-10&returnDate=2024-08-12&adults=1&children=1&infants=1&travelClass=BUSINESS&nonStop=false&currencyCode=USD&max=10");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseContent);
-            var data = JsonConvert.DeserializeObject<FlightOffersResponse>(responseContent);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(responseContent);
+                var data = JsonConvert.DeserializeObject<FlightOffersResponse>(responseContent);
 
-            return data;
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
     }
 

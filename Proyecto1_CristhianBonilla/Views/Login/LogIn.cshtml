@@ -1,0 +1,53 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+@model Proyecto1_CristhianBonilla.Models.Users;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Iniciar sesión</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/LogIn.css" />
+</head>
+<body class="d-flex align-items-center justify-content-center" style="height: 100vh; background-color: #343a40; background-image: url('path/to/your/image.jpg'); background-size: cover; background-position: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card shadow border-0" style="border-radius: 10px; background-color: rgba(255, 255, 255, 0.9);">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">Bienvenido</h2>
+                        <form asp-controller="Login" asp-action="LogIn" method="post">
+                            <div class="form-group mb-3">
+                                <label class="text-start">Usuario</label>
+                                <input type="number" asp-for="IdUser" class="form-control" placeholder="Ingrese su identificación" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="password" class="text-start">Contraseña</label>
+                                <input type="password" asp-for="Password" class="form-control" placeholder="Ingrese su contraseña" />
+                            </div>
+                            <div class="text-center mb-3">
+                                <a href="/Users/ForgotPassword" class="text-muted">¿Olvidó su contraseña?</a>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success btn-block mb-3 me-3">Ingresar</button>
+                                <a href="/Users/AddUser" class="btn btn-primary btn-block mb-3 ms-3">Registrarse</a>
+                            </div>
+                            @if (ViewData["Message"] != null)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @ViewData["Message"]
+                                </div>
+                            }
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

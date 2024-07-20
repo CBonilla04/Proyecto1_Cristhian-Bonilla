@@ -20,7 +20,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(filters);
+            return View();
         }
 
         [HttpGet]
@@ -47,18 +47,20 @@ namespace Proyecto1_CristhianBonilla.Controllers
 
             return Json(flightOffers);
         }
-
+        [HttpPost]
         public IActionResult AddToCart([FromBody] FlightOffer flight)
-        {   
-            
-            // Add flight to cart logic here
-            // You can store it in session or database as per your requirement
-            // Example: 
-            // var cart = HttpContext.Session.GetObjectFromJson<List<FlightViewModel>>("Cart") ?? new List<FlightViewModel>();
-            // cart.Add(flight);
-            // HttpContext.Session.SetObjectAsJson("Cart", cart);
+        {
 
+            List<FlightOffer> carList = HttpContext.Session.GetObjectFromJson<List<FlightOffer>>("CartStore");
+            if (carList == null)
+            {
+                carList = new List<FlightOffer>();
+            }
+
+            carList.Add(flight);
+            HttpContext.Session.SetObjectAsJson("CartStore", carList);
             return Ok();
+
         }
     }
 

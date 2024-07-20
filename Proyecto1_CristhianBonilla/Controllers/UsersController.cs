@@ -1,22 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
+using Proyecto1_CristhianBonilla.ViewModels;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
     public class UsersController : Controller
     {
+        private readonly IUserService _userService;
 
-        private readonly AppDbContext _appDbContext;
         private readonly IAmadeusApiService _amadeusApiService;
 
-        public UsersController(AppDbContext appDbContext, IAmadeusApiService amadeusApiService)
+        public UsersController(IAmadeusApiService amadeusApiService, IUserService userService)
         {
-            _appDbContext = appDbContext;
             _amadeusApiService = amadeusApiService;
+            _userService = userService;
         }
 
 
@@ -25,15 +24,15 @@ namespace Proyecto1_CristhianBonilla.Controllers
         {
             try
             {
-                await _appDbContext.Users.AddAsync(user);
-                int restult = await _appDbContext.SaveChangesAsync();
+                int restult = 0;
+                user = await _userService.AddUser(user);
 
-                if (restult == 0)
+                if (user ==  null)
                 {
                     ViewData["Message"] = "No se pudo guardar el usuario";
                     return View(user); 
                 }
-                return RedirectToAction("Login");
+                return RedirectToAction("Login","LogIn");
             }
             catch (Exception ex)
             {
@@ -45,30 +44,44 @@ namespace Proyecto1_CristhianBonilla.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login(Users user)
-        {   
-            try
-            {
-                var userLogin = await _appDbContext.Users.Where(u => u.IdUser == user.IdUser && u.Password == user.Password).FirstOrDefaultAsync();
-                if (userLogin != null)
-                {
-                    return RedirectToAction("AddUser");
-                }
-                ViewData["Message"] = user.IdUser != 0 ? "Usuario o contraseña incorrectos" :  null;
-                return View(user);
-            }
-            catch (Exception ex)
-            {
-                ViewData["Message"] = "Usuario o contraseña incorrectos." + ex.InnerException?.Message; ;
-                return View(user);
-            }
-        }
-
-        [HttpGet]
         public ActionResult AddUser()
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult EditUser()
+        {
+            CurrentUser user = HttpContext.Session.GetObjectFromJson<CurrentUser>("CurrentUser");
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUser(CurrentUser user)
+        {
+            try
+            {
+                
+                bool restul = await _userService.EditUser(user);
+
+                if (restul)
+                {
+                    ViewData["Message"] = "No se pudo modificar el usuario";
+                    return View(user);
+                }
+                return View(user);
+            }
+            catch (Exception ex)
+            {
+
+                ViewData["Message"] = ex.InnerException?.Message;
+                return View(user);
+            }
+
+        }
+
+
+
 
     }
 

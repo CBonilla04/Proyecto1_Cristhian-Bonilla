@@ -6,10 +6,11 @@ namespace Proyecto1_CristhianBonilla.Models
     public class FlightPassengers
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdFliPas { get; set; }
 
         [Required(ErrorMessage = "El numero de vuelo es requerido.")]
-        public int UnitPrice { get; set; }
+        public decimal UnitPrice { get; set; }
 
         [Required(ErrorMessage = "El origen del vuelo es requerido")]
          public int Quantity { get; set; }

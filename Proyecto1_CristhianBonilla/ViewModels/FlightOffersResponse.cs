@@ -3,5 +3,6 @@
     public class FlightOffersResponse
     {
         public FlightOffer[] data { get; set; }
+
     }
 }
