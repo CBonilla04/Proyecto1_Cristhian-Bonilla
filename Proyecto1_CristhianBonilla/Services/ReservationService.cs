@@ -32,7 +32,7 @@ namespace Proyecto1_CristhianBonilla.Services
         public async Task<Users> AddReservations(List<FlightOffer> flights, int userId)
         {
             Users user = await _appDbContext.Users
-                .Include(u => u.Reservations) // Incluye las reservas para evitar el problema de seguimiento
+                .Include(u => u.Reservations) 
                 .FirstOrDefaultAsync(u => u.IdUser == userId);
 
             if (user == null)
@@ -85,7 +85,6 @@ namespace Proyecto1_CristhianBonilla.Services
 
                             
                         }
-                        //_appDbContext.Flights.Add(flight);
                     }
                     user.Reservations.Add(reservation);
                 }

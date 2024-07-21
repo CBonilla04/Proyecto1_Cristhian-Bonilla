@@ -23,22 +23,23 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="/source/js/Cart.js"></script>
 
 <script type="text/javascript">
     var flights = @Html.Raw(Json.Serialize(Model));
 
     function Eliminar(index) {
-        $.ajax({
-            url: '@Url.Action("Eliminar", "Cart")',
-            type: 'POST',
-            data: { index: index },
-            success: function () {
-                location.reload();
-            },
-            error: function () {
-                alert('Ocurrió un error al eliminar el vuelo.');
-            }
-        });
+         $.ajax({
+             url: '@Url.Action("Eliminar", "Cart")',
+             type: 'POST',
+             data: { index: index },
+             success: function () {
+                 location.reload();
+             },
+             error: function () {
+                 alert('Ocurrió un error al eliminar el vuelo.');
+             }
+         });
     }
 
     $(document).on("click", ".verDetalles", function () {
@@ -46,47 +47,21 @@
         var flight = flights[index];
         var prices = flight.travelerPricings;
         var pricesDetail = '';
-        console.log(prices);
         prices.forEach(function (price, index) {
             pricesDetail += `
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
-                                <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
-                                <p class="card-text">Precio base: ${price.price.base} USD</p>
-                                <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
-                                <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
-                            </div>
-                        </div>
-                    `;
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
+                        <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
+                        <p class="card-text">Precio base: ${price.price.base} USD</p>
+                        <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
+                        <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
+                    </div>
+                </div>
+            `;
         });
         $("#detalleVueloContent").html(pricesDetail);
         $('#detalleVueloModal').modal('show');
-    });
-
-    $(document).on('hidden.bs.modal', '#detalleVueloModal', function (e) {
-        // Asegurarse de que la pantalla principal esté habilitada después de cerrar el modal
-        if ($('.modal.show').length > 0) {
-            $('body').addClass('modal-open');
-        }
-    });
-
-    function convertPassengerType(type) {
-        switch (type) {
-            case 'ADULT': return 'Adulto';
-            case 'CHILD': return 'Niño';
-            case 'HELD_INFANT': return 'Bebé';
-            default: return 'Desconocido';
-        }
-    }
-
-    $(document).on('hidden.bs.modal', function (e) {
-        // Asegurarse de que la pantalla principal esté habilitada después de cerrar el modal
-        if ($('.modal.show').length > 0) {
-            $('body').addClass('modal-open');
-        } else {
-            $('.modal-backdrop').remove(); // Eliminar manualmente el backdrop
-        }
     });
 </script>
 

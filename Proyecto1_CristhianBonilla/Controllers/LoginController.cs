@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Utils;
-using Proyecto1_CristhianBonilla.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using Proyecto1_CristhianBonilla.Services;
 
 namespace Proyecto1_CristhianBonilla.Controllers

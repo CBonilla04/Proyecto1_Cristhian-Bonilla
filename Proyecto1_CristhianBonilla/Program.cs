@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
 
@@ -37,6 +38,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Source")),
+    RequestPath = "/source"
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

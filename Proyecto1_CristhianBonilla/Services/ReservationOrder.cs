@@ -1,7 +1,6 @@
 ﻿using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.ViewModels;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Proyecto1_CristhianBonilla.Services
 {
@@ -40,8 +39,6 @@ namespace Proyecto1_CristhianBonilla.Services
                             FlightPassengers = new List<FlightPassengers>()
                         };
 
-                        // Añade la reserva al usuario
-                        //await _reservationService.insert(reservation);
                         foreach (var itineraries in flightOffer.Itineraries)
                         {
                             Flights flight = new Flights
@@ -73,7 +70,6 @@ namespace Proyecto1_CristhianBonilla.Services
 
                                 scale.FlightScales.Add(flightScales);
                                 flight.FlightScales.Add(flightScales);
-                                //await _flightScaleServiceContext.insert(flightScales);// DbContext.FlightScales.AddAsync(flightScales);
 
 
                             }
@@ -81,9 +77,7 @@ namespace Proyecto1_CristhianBonilla.Services
                             
 
 
-                                // Añade el vuelo a la reserva
                                 reservation.Flights.Add(flight);
-                            //_appDbContext.Flights.Add(flight);
                         }
 
                         foreach (var pricing in flightOffer.TravelerPricings)
@@ -106,24 +100,6 @@ namespace Proyecto1_CristhianBonilla.Services
                         }
                         reservationsToSave.Add(reservation);
 
-                        //user.Reservations.Add(reservation);
-
-                        //foreach (var itineraries in flightOffer.Itineraries)
-                        //{
-                        //    Flights flight = new Flights
-                        //    {
-                        //        Origin = itineraries.Segments[0].Departure.IataCode,
-                        //        Destination = itineraries.Segments[itineraries.Segments.Count - 1].Arrival.IataCode,
-                        //        DepartureDate = DateTime.Parse(itineraries.Segments[0].Departure.At),
-                        //        ArriveDate = DateTime.Parse(itineraries.Segments[itineraries.Segments.Count - 1].Arrival.At),
-                        //        Reservations = reservation
-                        //    };
-
-                        //    // Añade el vuelo a la reserva
-                        //    reservation.Flights.Add(flight);
-                        //    //_appDbContext.Flights.Add(flight);
-                        //}
-                        
                     }
                     user.Reservations = reservationsToSave;
                     user = await _userContext.updateUser(user);

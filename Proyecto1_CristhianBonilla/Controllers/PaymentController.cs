@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.ViewModels;

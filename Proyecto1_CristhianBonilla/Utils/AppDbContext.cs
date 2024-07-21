@@ -26,12 +26,10 @@ namespace Proyecto1_CristhianBonilla.Utils
                 .Property(f => f.IdFlights)
                 .ValueGeneratedOnAdd();
 
-            // Configuración adicional para otras entidades
             modelBuilder.Entity<Reservations>()
                 .Property(r => r.IdReservation)
                 .ValueGeneratedOnAdd();
 
-            // Agrega aquí configuraciones adicionales si es necesario
 
             base.OnModelCreating(modelBuilder);
         }
