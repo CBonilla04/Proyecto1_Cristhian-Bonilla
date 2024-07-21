@@ -11,10 +11,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
+
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IReservationOrder, ReservationOrder>();
 builder.Services.AddScoped<IFlightScaleService, FlightScaleService>();
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddHttpClient<IAmadeusApiService, AmadeusApiService>();
 builder.Services.AddHttpClient<IHomeService, HomeService>();
 builder.Services.AddControllersWithViews();
@@ -44,6 +49,13 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "Source")),
     RequestPath = "/source"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Utils/EmailTemplates")),
+    RequestPath = "/emailTemplates"
 });
 
 app.UseHttpsRedirection();

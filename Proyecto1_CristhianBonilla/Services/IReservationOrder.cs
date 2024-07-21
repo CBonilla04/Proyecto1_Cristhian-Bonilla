@@ -4,6 +4,6 @@ namespace Proyecto1_CristhianBonilla.Services
 {
     public interface IReservationOrder
     {
-        Task<ReservationService> IntegrateReservation(List<FlightOffer> flights, int userId);
+        Task<ReservationService> IntegrateReservation(List<FlightOffer> flights, int userId, string userName);
     }
 }

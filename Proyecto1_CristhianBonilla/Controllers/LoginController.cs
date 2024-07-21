@@ -9,10 +9,12 @@ namespace Proyecto1_CristhianBonilla.Controllers
     {
         private readonly AppDbContext _appDbContext;
         private readonly IUserService _userService;
-        public LoginController(AppDbContext appDbContext, IUserService userService)
+        private readonly IEmailSender _emailSender;
+        public LoginController(AppDbContext appDbContext, IUserService userService, IEmailSender emailSender)
         {
             _appDbContext = appDbContext;
             _userService = userService;
+            _emailSender = emailSender;
         }
 
         [HttpPost]
@@ -20,9 +22,11 @@ namespace Proyecto1_CristhianBonilla.Controllers
         {
             try
             {
+                
                 var login = await _userService.GetUser(user, HttpContext);
                 if (login != null)
                 {
+                    await _emailSender.SendEmailLogin("Inicio de sesión", login);
                     return RedirectToAction("Index", "Home");
                 }
                 else

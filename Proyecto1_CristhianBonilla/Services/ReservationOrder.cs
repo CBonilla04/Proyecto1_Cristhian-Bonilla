@@ -10,22 +10,28 @@ namespace Proyecto1_CristhianBonilla.Services
         private readonly IUserService _userContext;
         private readonly IReservationService _reservationService;
         private readonly IFlightScaleService _flightScaleServiceContext;
+        private readonly IEmailSender _emailSender;
 
-        public ReservationOrder(AppDbContext reserOrderContext, IUserService userContext, IReservationService reservationService, IFlightScaleService flightScaleServiceContext)
+        public ReservationOrder(AppDbContext reserOrderContext, IUserService userContext, IReservationService reservationService, IFlightScaleService flightScaleServiceContext, IEmailSender emailSender)
         {
             _reserOrderContext = reserOrderContext;
             _userContext = userContext;
             _reservationService = reservationService;
             _flightScaleServiceContext = flightScaleServiceContext;
+            _emailSender = emailSender;
         }
-        public async Task<ReservationService> IntegrateReservation(List<FlightOffer> flights, int userId)
+        public async Task<ReservationService> IntegrateReservation(List<FlightOffer> flights, int userId, string userName)
         {
+            int reservationsQuantity = 0;
+            decimal TotalAmount = 0;
             try
             {
                 using (var transaction = _reserOrderContext.Database.BeginTransaction())
                 {
                     Users user = await _userContext.getUserById(userId);
                     List<Reservations> reservationsToSave = new List<Reservations>();
+
+                    reservationsQuantity = flights.Count;
                     foreach (var flightOffer in flights)
                     {
                         Reservations reservation = new Reservations
@@ -38,6 +44,9 @@ namespace Proyecto1_CristhianBonilla.Services
                             Flights = new List<Flights>(),
                             FlightPassengers = new List<FlightPassengers>()
                         };
+                        TotalAmount += reservation.TotalPrice;
+
+
 
                         foreach (var itineraries in flightOffer.Itineraries)
                         {
@@ -73,11 +82,7 @@ namespace Proyecto1_CristhianBonilla.Services
 
 
                             }
-
-                            
-
-
-                                reservation.Flights.Add(flight);
+                            reservation.Flights.Add(flight);
                         }
 
                         foreach (var pricing in flightOffer.TravelerPricings)
@@ -105,6 +110,7 @@ namespace Proyecto1_CristhianBonilla.Services
                     user = await _userContext.updateUser(user);
                     await _reserOrderContext.SaveChangesAsync();
                     transaction.Commit();
+                    await _emailSender.SendEmailReservation(user.Name, user.Email, TotalAmount.ToString(), reservationsQuantity.ToString(), "¡Reservación de vuelo!");
                     return null;
                 }
                 return null;

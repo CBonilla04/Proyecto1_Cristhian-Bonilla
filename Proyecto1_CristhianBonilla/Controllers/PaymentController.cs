@@ -22,7 +22,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                 flights = new List<FlightOffer>();
             }
             CurrentUser userSession = HttpContext.Session.GetObjectFromJson<CurrentUser>("CurrentUser");
-            await _reservationOrder.IntegrateReservation(flights, userSession.IdUser);
+            await _reservationOrder.IntegrateReservation(flights, userSession.IdUser, userSession.Name);
 
             return View(flights);
         }
