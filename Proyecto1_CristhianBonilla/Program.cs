@@ -29,9 +29,8 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddSession(options =>
-{
-    
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+{   
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
     options.Cookie.IsEssential = true;
 });
 
@@ -69,6 +68,19 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+
+app.Use(async (context, next) =>
+{
+    var session = context.Session;
+    if (session.GetString("CurrentUser") == null && context.Request.Path != "/Session/Expired" && context.Request.Path != "/Login/LogIn"
+        && context.Request.Path != "/" && context.Request.Path != "/Users/AddUser")
+    {
+        context.Response.Redirect("/Session/Expired");
+        return;
+    }
+
+    await next.Invoke();
+});
 
 app.MapControllerRoute(
     name: "default",
