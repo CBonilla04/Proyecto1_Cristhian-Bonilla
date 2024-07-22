@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.ViewModels;
+using System.Security.Claims;
 
 namespace Proyecto1_CristhianBonilla.Services
 {
@@ -10,10 +13,12 @@ namespace Proyecto1_CristhianBonilla.Services
     {
         private readonly AppDbContext _appDbContext;
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(AppDbContext appDbContext)
+        public UserService(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _appDbContext = appDbContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -38,14 +43,26 @@ namespace Proyecto1_CristhianBonilla.Services
                 var userLogin = await _appDbContext.Users.Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
                 
                 if (userLogin != null && hashData.VerifyPassword(user.Password,userLogin.Password)) {
-                    Users ActualUser = userLogin;
-                    httpContext.Session.SetObjectAsJson("CurrentUser", new CurrentUser(ActualUser));
+                    user = userLogin;
+
+                    httpContext.Session.SetObjectAsJson("CurrentUser", new CurrentUser(user));
                 }
                 else
                 {
                    return null;
                 }
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Name)
+                };
 
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true
+                };
+                await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
                 return userLogin;
             }
             catch (Exception ex)

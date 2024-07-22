@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
@@ -80,14 +81,14 @@ namespace Proyecto1_CristhianBonilla.Controllers
         {
             return View();
         }
-
+        [Authorize]
         [HttpGet]
         public ActionResult EditUser()
         {
             CurrentUser user = HttpContext.Session.GetObjectFromJson<CurrentUser>("CurrentUser");
             return View(user);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditUser(CurrentUser user)
         {

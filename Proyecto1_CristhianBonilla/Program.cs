@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Proyecto1_CristhianBonilla.Services;
@@ -23,11 +24,18 @@ builder.Services.AddScoped<IFlightScaleService, FlightScaleService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddHttpClient<IAmadeusApiService, AmadeusApiService>();
 builder.Services.AddHttpClient<IHomeService, HomeService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Login/LogIn"; 
+            });
 builder.Services.AddSession(options =>
 {   
     options.IdleTimeout = TimeSpan.FromMinutes(10);

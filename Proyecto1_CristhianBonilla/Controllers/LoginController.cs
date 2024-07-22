@@ -2,6 +2,8 @@
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
@@ -51,6 +53,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
         {
             // Clear all session data
             HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Redirect to the Login view
             return RedirectToAction("LogIn");

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Services;
 using Proyecto1_CristhianBonilla.Utils;
@@ -6,6 +7,7 @@ using Proyecto1_CristhianBonilla.ViewModels;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
+    [Authorize]
     public class HistoricalController : Controller
     {
         private readonly IReservationService _reservationService;

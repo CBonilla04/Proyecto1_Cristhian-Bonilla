@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.ViewModels;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         [HttpGet]
