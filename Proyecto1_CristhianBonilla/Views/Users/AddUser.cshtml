@@ -4,7 +4,7 @@
 @{
     Layout = null;
 }
-@model Proyecto1_CristhianBonilla.Models.Users;
+@model Proyecto1_CristhianBonilla.ViewModels.UserView;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,11 +12,11 @@
     <title>Registrarse</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 </head>
-<body class="d-flex align-items-center justify-content-center" style="height: 100vh; background-color: #ffffff;">
+<body class="d-flex align-items-center justify-content-center" style="height: 100vh; background-color: #343a40;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-sm-8">
-                <div class="card shadow border-0" style="border-radius: 10px; background-color: #343a40; color: #ffffff;">
+                <div class="card shadow border-0" style="border-radius: 10px; background-color: rgba(255, 255, 255, 0.9); color: #000000;">
                     <div class="card-body">
                         <h2>Nuevo usuario</h2>
                         <form asp-controller="Users" asp-action="addUser" method="post">
@@ -42,7 +42,11 @@
                             </div>
                             <div class="mb-3 mx-4">
                                 <label>Contraseña <span style="color: red;">*</span></label>
-                                <input placeholder="Contraseña" class="form-control" type="password" asp-for="Password" required />
+                                <input placeholder="Contraseña (Se requieren longitud de 8, mínimo un número, una letra mayúscula y un carácter especial)" class="form-control" type="password" asp-for="Password" required />
+                            </div>
+                            <div class="mb-3 mx-4">
+                                <label>Confirmar Contraseña <span style="color: red;">*</span></label>
+                                <input placeholder="Confirmar Contraseña" class="form-control" type="password" asp-for="PasswordCheck" required />
                             </div>
                             <div class="mb-3 mx-4">
                                 <label>Edad <span style="color: red;">*</span></label>
@@ -59,7 +63,7 @@
 
                             <div class="mb-3 mx-4">
                                 <button class="btn btn-primary" type="submit">Guardar</button>
-                                <a asp-controller="Users" asp-action="Login" class="btn btn-warning">Volver</a>
+                                <a asp-controller="Login" asp-action="LogIn" class="btn btn-warning">Volver</a>
                             </div>
                             @if (ViewData["Message"] != null)
                             {
