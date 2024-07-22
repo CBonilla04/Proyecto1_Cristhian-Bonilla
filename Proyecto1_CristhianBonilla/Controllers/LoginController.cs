@@ -26,7 +26,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                 var login = await _userService.GetUser(user, HttpContext);
                 if (login != null)
                 {
-                    await _emailSender.SendEmailLogin("Inicio de sesión", login);
+                    //await _emailSender.SendEmailLogin("Inicio de sesión", login);
                     return RedirectToAction("Index", "Home");
                 }
                 else

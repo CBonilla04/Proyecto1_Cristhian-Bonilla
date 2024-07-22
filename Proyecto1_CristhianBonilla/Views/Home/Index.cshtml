@@ -9,34 +9,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-@* <script>
-    // Convertir la duración de formato ISO 8601 a HH:MM
-    function convertIso8601DurationToTime(duration) {
-        const match = duration.match(/PT(\d+H)?(\d+M)?/);
-        const hours = match[1] ? match[1].slice(0, -1).padStart(2, '0') : '00';
-        const minutes = match[2] ? match[2].slice(0, -1).padStart(2, '0') : '00';
-        return `${hours}:${minutes}`;
-    }
-
-    function convertPassengerType(passenger) {
-        let passengerType = '';
-        switch (passenger) {
-            case 'ADULT':
-                passengerType = 'Adulto';
-                break;
-            case 'CHILD':
-                passengerType = 'Niño';
-                break;
-            case 'HELD_INFANT':
-                passengerType = 'Bebé';
-                break;
-            default:
-                passengerType = 'Desconocido';
-                break;
-        }
-        return passengerType;
-    }
-</script> *@
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -94,23 +66,7 @@
             },
             placeholder: 'Seleccionar origen',
             allowClear: true
-        });
-        //$("#buscarVuelos").on("click", function (e) {
-        //     e.preventDefault();
-        //     var form = $("form").serialize();
-        //     $.ajax({
-        //         type: "GET",
-        //         url: "/Home/getFlights",
-        //         data: form,
-        //         success: function (data) {
-        //             console.log("Datos recibidos:", data);
-        //             // Procesar y mostrar los datos de flightOffers aquí
-        //         },
-        //         error: function (xhr, status, error) {
-        //             console.error("Error en la solicitud:", error);
-        //         }
-        //     });
-        // });
+        });  
 
         $("#buscarVuelos").on("click", function (e) {
             e.preventDefault();
@@ -173,7 +129,7 @@
                         var durationHTML = convertIso8601DurationToTime(itineraries[0]?.duration);
                         $("#detalleEscalaModalLabel").html('Escalas' + (durationHTML ? ` - ${durationHTML}` : ''));
 
-                        $("#verEscalas").html(''); // Clear previous content
+                        $("#verEscalas").html(''); 
 
                         itineraries[0]?.segments.forEach(function (scale, index) {
                             var cardHtml = `

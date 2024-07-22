@@ -2,6 +2,7 @@
 using Proyecto1_CristhianBonilla.Models;
 using Proyecto1_CristhianBonilla.Utils;
 using Proyecto1_CristhianBonilla.ViewModels;
+using System.Collections.Generic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Proyecto1_CristhianBonilla.Services
@@ -101,6 +102,31 @@ namespace Proyecto1_CristhianBonilla.Services
             {
                 await transaction.RollbackAsync();
                 // Manejar la excepción según sea necesario
+                return null;
+            }
+        }
+
+        public async Task<List<Reservations>> GetReservationByUser(int id)
+        {
+            try
+            {
+                List<Reservations> reservations = await _appDbContext.Reservations
+                    .Include(r => r.Flights)
+                        .ThenInclude(f => f.FlightScales)
+                            .ThenInclude(fs => fs.Scales)
+                    .Include(fp => fp.FlightPassengers)
+                        .ThenInclude(p => p.PassengerType)
+                    .Where(r => r.User.IdUser == id)
+                    .ToListAsync();
+                if (reservations == null)
+                {
+                    return null;
+                }
+
+                return reservations;
+            }
+            catch (Exception ex)
+            {
                 return null;
             }
         }

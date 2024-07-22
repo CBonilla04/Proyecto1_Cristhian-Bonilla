@@ -1,0 +1,115 @@
+﻿@model List<Proyecto1_CristhianBonilla.Models.Reservations>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+    Func<string, string> formatoFecha = fecha =>
+        {
+            if (!string.IsNullOrEmpty(fecha))
+            {
+                return DateTime.Parse(fecha).ToString("dd 'de' MMMM 'de' yyyy HH:mm", new System.Globalization.CultureInfo("es-ES"));
+            }
+            return string.Empty;
+        };
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/source/js/Historical.js"></script>
+<script src="/source/js/FlightsReservations.js"></script>
+<link rel="stylesheet" href="/source/css/Historical.css">
+
+<script id="reservationData" type="application/json">
+    @Html.Raw(Json.Serialize(Model))
+</script>
+
+<div class="row">
+    <div class="col-md-12 text-center">
+        <h1>Histórico de vuelos</h1>
+    </div>
+</div>
+<div class="container mt-4">
+    <div class="row">
+        @foreach (var (reservation, index) in Model.Select((value, i) => (value, i)))
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card" style="background-color: #356263; color: white;">
+                    <div class="card-body text-center ">
+                        <p class="card-text"><strong>Fecha de reservado:</strong> @reservation.ReservationDate.ToString("dd/MM/yyyy")</p>
+                        <p class="card-text"><strong>Ida y vuelta:</strong> @(reservation.Flights.Count > 1 ? "Sí" : "No")</p>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <h6 class="card-title text-center">Ida</h6>
+                                <h6 class="card-title">Fecha: @reservation.Flights.ElementAt(0).DepartureDate</h6>
+                                <p class="card-text"><strong>Origen:</strong> @reservation.Flights.ElementAt(0).Origin</p>
+                                <p class="card-text"><strong>Destino:</strong> @reservation.Flights.ElementAt(0).Destination</p>
+                                <p class="card-text">
+                                    <strong>Cantidad de escalas:</strong> @reservation.Flights.ElementAt(0).FlightScales.Count
+                                    <i class="fas fa-eye" style="cursor: pointer;  color: deepskyblue;" data-toggle="modal" data-target="#scalesModal" data-flight-index="0" data-reservation-index="@index" title="Escalas"></i>
+                                </p>
+                            </div>
+                            @if (reservation.Flights.Count > 1)
+                            {
+                                <div class="col-md-6">
+                                    <h6 class="card-title text-center">Vuelta</h6>
+                                    <h6 class="card-title">Fecha: @reservation.Flights.ElementAt(1).DepartureDate</h6>
+                                    <p class="card-text"><strong>Origen:</strong> @reservation.Flights.ElementAt(1).Origin</p>
+                                    <p class="card-text"><strong>Destino:</strong> @reservation.Flights.ElementAt(1).Destination</p>
+                                    <p class="card-text">
+                                        <strong>Cantidad de escalas:</strong> @reservation.Flights.ElementAt(1).FlightScales.Count
+                                        <i class="fas fa-eye scalesModal" style="cursor: pointer; color: deepskyblue;" data-toggle="modal" data-target="#scalesModal" data-flight-index="1" data-reservation-index="@index" title="Escalas"></i>
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                        <p class="card-text">
+                            <i class="fas fa-users passengersModal" style="cursor: pointer; color: yellow;" data-toggle="modal" data-target="#passengersModal" data-reservation-index="@index" title="Detalle pasajeros"></i>
+                            <strong>Costo total:</strong> $@reservation.TotalPrice.ToString("F2")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="scalesModal" tabindex="-1" role="dialog" aria-labelledby="scalesModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scalesModalLabel">Información de escalas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body scalesCard">
+                <!-- Aquí se mostrará la información de las escalas -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="passengersModal" tabindex="-1" role="dialog" aria-labelledby="passengersModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passengersModalLabel">Información de pasajeros</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body passengersCard">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
