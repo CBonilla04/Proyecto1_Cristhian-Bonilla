@@ -32,13 +32,18 @@ namespace Proyecto1_CristhianBonilla.Services
 
         public async Task<Users> GetUser(Users user, HttpContext httpContext)
         {
+            HashData hashData = new HashData();
             try
             {
-                var userLogin = await _appDbContext.Users.Where(u => u.IdUser == user.IdUser && u.Password == user.Password).FirstOrDefaultAsync();
+                var userLogin = await _appDbContext.Users.Where(u => u.IdUser == user.IdUser).FirstOrDefaultAsync();
                 
-                if (userLogin != null) {
+                if (userLogin != null && hashData.VerifyPassword(user.Password,userLogin.Password)) {
                     Users ActualUser = userLogin;
                     httpContext.Session.SetObjectAsJson("CurrentUser", new CurrentUser(ActualUser));
+                }
+                else
+                {
+                   return null;
                 }
 
                 return userLogin;

@@ -18,16 +18,15 @@ namespace Proyecto1_CristhianBonilla.Models
         [MaxLength(50)]
         public string Surname { get; set; }
 
-        [AllowNull]
         [MaxLength(50)]
-        public string SecondSurname { get; set; }
+        public string? SecondSurname { get; set; }
 
         [Required(ErrorMessage = "La edad es requerida.")]
         [Range(18, 100, ErrorMessage = "La edad debe ser mayor a 17.")]
         public int Age { get; set; }
 
         [Required(ErrorMessage = "La contraseña es requerida.")]
-        [MaxLength(100)]
+        [MaxLength(256)]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "El email es requerido.")]
@@ -35,9 +34,8 @@ namespace Proyecto1_CristhianBonilla.Models
         [EmailAddress(ErrorMessage = "El email no es válido.")]
         public string Email { get; set; }
 
-        [AllowNull]
         [Column(TypeName = "varchar(MAX)")]
-        public string Preferences { get; set; }
+        public string? Preferences { get; set; }
 
         public ICollection<Reservations> Reservations { get; set; }
 

@@ -21,8 +21,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
         public async Task<IActionResult> LogIn(Users user)
         {
             try
-            {
-                
+            {                
                 var login = await _userService.GetUser(user, HttpContext);
                 if (login != null)
                 {

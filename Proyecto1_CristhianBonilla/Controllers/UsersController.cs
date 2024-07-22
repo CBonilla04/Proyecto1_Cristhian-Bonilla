@@ -26,6 +26,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUser(UserView user)
         {
+            HashData hashData = new HashData();
             try
             {
                 if(user.IdUser == 0)
@@ -52,7 +53,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                         SecondSurname = user.SecondSurname,
                         Age = user.Age,
                         Email = user.Email,
-                        Password = user.Password,
+                        Password = hashData.HashPassword(user.Password),
                         Preferences = user.Preferences
                     };
                     await _userService.AddUser(userToSave);
