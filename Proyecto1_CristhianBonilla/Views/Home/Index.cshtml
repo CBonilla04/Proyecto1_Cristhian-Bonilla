@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="/source/js/CartCount.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -113,6 +114,7 @@
                             contentType: "application/json",
                             data: JSON.stringify(flight),
                             success: function (response) {
+                                updateCartItemCount();
                                 alert("Vuelo agregado al carrito.");
                             },
                             error: function (xhr, status, error) {

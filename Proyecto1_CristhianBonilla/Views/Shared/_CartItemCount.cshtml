@@ -1,0 +1,9 @@
+﻿@{
+    int itemCount = (int)ViewData["CartItemCount"];
+}
+
+<li class="nav-item">
+    <a class="nav-link" href="@Url.Action("Cart", "Cart")">
+        Carrito <span class="badge badge-pill badge-primary">@itemCount</span>
+    </a>
+</li>

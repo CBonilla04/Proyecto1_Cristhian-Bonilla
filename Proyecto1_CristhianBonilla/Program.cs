@@ -75,6 +75,7 @@ app.Use(async (context, next) =>
     if (session.GetString("CurrentUser") == null && context.Request.Path != "/Session/Expired" && context.Request.Path != "/Login/LogIn"
         && context.Request.Path != "/" && context.Request.Path != "/Users/AddUser")
     {
+        session.Clear();
         context.Response.Redirect("/Session/Expired");
         return;
     }

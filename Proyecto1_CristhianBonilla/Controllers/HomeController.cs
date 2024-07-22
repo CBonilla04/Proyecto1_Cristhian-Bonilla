@@ -62,7 +62,16 @@ namespace Proyecto1_CristhianBonilla.Controllers
             return Ok();
 
         }
+        [HttpGet]
+        public IActionResult GetCartItemCount()
+        {
+            List<FlightOffer> carList = HttpContext.Session.GetObjectFromJson<List<FlightOffer>>("CartStore");
+            int itemCount = carList?.Count ?? 0;
+            return Json(new { count = itemCount });
+        }
     }
+
+    
 
 
 }
