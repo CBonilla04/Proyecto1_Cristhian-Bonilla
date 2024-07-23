@@ -30,6 +30,7 @@ namespace Proyecto1_CristhianBonilla.Services
             return reservation;
 
         }
+        // Method to add a new reservation
         public async Task<Users> AddReservations(List<FlightOffer> flights, int userId)
         {
             Users user = await _appDbContext.Users
@@ -105,7 +106,7 @@ namespace Proyecto1_CristhianBonilla.Services
                 return null;
             }
         }
-
+        // Method to get a reservation by user
         public async Task<List<Reservations>> GetReservationByUser(int id)
         {
             try

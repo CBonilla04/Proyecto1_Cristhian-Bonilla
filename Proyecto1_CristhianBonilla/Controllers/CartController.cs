@@ -5,6 +5,7 @@ using Proyecto1_CristhianBonilla.ViewModels;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
+    //permitir acceso solo a usuarios autenticados
     [Authorize]
     public class CartController : Controller
     {
@@ -18,6 +19,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
             }
             return View(flights);
         }
+        //permite eliminar un vuelo del carrito
         [HttpPost]
         public IActionResult Eliminar(int index)
         {

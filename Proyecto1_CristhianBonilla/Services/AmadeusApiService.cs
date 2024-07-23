@@ -17,7 +17,7 @@ namespace Proyecto1_CristhianBonilla.Services
         {
             _httpClient = httpClient;
         }
-
+        //Clase para deserializar la respuesta de la api de amadeus
         public async Task AuthenticateAsync(string clientId, string clientSecret)
         {
             try
@@ -37,10 +37,11 @@ namespace Proyecto1_CristhianBonilla.Services
                 Console.WriteLine(ex.Message);
             }
         }
+        //Obtiene la lista de vuelos
         public async Task<FlightOffersResponse> GetFlightOffersAsync(string origin, string destination, string departureDate, string returnDate, string adults, string children, string infants, string travelClass, string notStop, string maxPrice)
         {
             var queryParameters = new List<string>();
-
+            //agrega los parámetros a la url
             if (!string.IsNullOrEmpty(origin))
             {
                 queryParameters.Add($"originLocationCode={origin}");
@@ -92,15 +93,18 @@ namespace Proyecto1_CristhianBonilla.Services
             var queryString = string.Join("&", queryParameters);
             try
             {
+                //realiza la petición a la api de amadeus
                 var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?{queryString}&currencyCode=USD&max=50");
 
+                //agrega el token de autenticación
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
+                //envía la petición
                 var response = await _httpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
-
+                //obtiene la respuesta
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(responseContent);
+                //deserializa la respuesta
                 var data = JsonConvert.DeserializeObject<FlightOffersResponse>(responseContent);
 
                 return data;

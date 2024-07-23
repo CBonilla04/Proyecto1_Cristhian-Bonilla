@@ -32,12 +32,13 @@ namespace Proyecto1_CristhianBonilla.Controllers
             var airports = await _homeService.GetAirportsAsync(keyword);
             return Json(airports);
         }
-
+        //muestra los vuelos disponibles
         [HttpGet]
         public async Task<IActionResult> getFlights(Filters model)
         {
             try
             {
+            //permite la autenticación en amadeus
             await _amadeusApiService.AuthenticateAsync("0pYa9rS3KzA0aFecnSAgU8DUI3BOmBql", "bG6OnyjSJclDij03");
             var flightOffers = await _amadeusApiService.GetFlightOffersAsync(
                     model.origin,
@@ -63,6 +64,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                 return Json(new { error = ex.Message });
             }
         }
+        //agrega un vuelo al carrito
         [HttpPost]
         public IActionResult AddToCart([FromBody] FlightOffer flight)
         {

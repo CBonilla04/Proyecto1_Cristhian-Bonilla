@@ -23,7 +23,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
             _userService = userService;
         }
 
-
+        //muestra la vista de registro
         [HttpPost]
         public async Task<IActionResult> AddUser(UserView user)
         {
@@ -46,6 +46,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                     return View(user);
                 }
                 else {
+                    //guarda el usuario
                     Users userToSave = new Users
                     {
                         IdUser = user.IdUser,
@@ -75,12 +76,13 @@ namespace Proyecto1_CristhianBonilla.Controllers
             }
 
         }
-
+        //muestra la vista de registro
         [HttpGet]
         public ActionResult AddUser()
         {
             return View();
         }
+        //muestra la vista de edición de usuario
         [Authorize]
         [HttpGet]
         public ActionResult EditUser()
@@ -88,13 +90,14 @@ namespace Proyecto1_CristhianBonilla.Controllers
             CurrentUser user = HttpContext.Session.GetObjectFromJson<CurrentUser>("CurrentUser");
             return View(user);
         }
+        //muestra la vista de edición de usuario
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditUser(CurrentUser user)
         {
             try
             {
-                
+                //modifica el usuario
                 bool restul = await _userService.EditUser(user);
 
                 if (restul)

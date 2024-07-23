@@ -12,6 +12,7 @@ namespace Proyecto1_CristhianBonilla.Services
         {
             _flightContext = flightContext;
         }
+        // Method to add a new flight
         public async Task<Flights> AddFlight(Flights flight)
         {
             try
@@ -28,6 +29,7 @@ namespace Proyecto1_CristhianBonilla.Services
             }
         }
 
+        // Method to add a list of new flights
         public async Task<List<Flights>> AddFlights(List<Flights> flights)
         {
             try

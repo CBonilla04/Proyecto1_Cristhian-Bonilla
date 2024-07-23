@@ -15,6 +15,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
         {
             _reservationOrder = reservationOrder;
         }
+        //muestra la vista de pago
         [HttpGet]
         public async Task<IActionResult> Payment()
         {
@@ -27,6 +28,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
                 }
                 CurrentUser userSession = HttpContext.Session.GetObjectFromJson<CurrentUser>("CurrentUser");
                 await _reservationOrder.IntegrateReservation(flights, userSession.IdUser, userSession.Name);
+                //elimina los vuelos pagados del carrito
                 HttpContext.Session.Remove("CartStore");
 
                 return View(flights);

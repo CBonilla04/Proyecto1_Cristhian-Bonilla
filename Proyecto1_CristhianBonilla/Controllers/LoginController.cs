@@ -18,7 +18,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
             _userService = userService;
             _emailSender = emailSender;
         }
-
+        //muestra la vista de inicio de sesión
         [HttpPost]
         public async Task<IActionResult> LogIn(Users user)
         {
@@ -42,13 +42,14 @@ namespace Proyecto1_CristhianBonilla.Controllers
                 return View(user);
             }
         }
+        //muestra la vista de inicio de sesión
 
         [HttpGet]
         public ActionResult LogIn()
         {
             return View();
         }
-
+        //muestra la vista de registro
         public async Task<IActionResult> LogOut()
         {
             // Clear all session data

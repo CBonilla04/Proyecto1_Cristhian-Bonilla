@@ -20,18 +20,21 @@ namespace Proyecto1_CristhianBonilla.Services
             _flightScaleServiceContext = flightScaleServiceContext;
             _emailSender = emailSender;
         }
+        // Method to integrate a reservation
         public async Task<ReservationService> IntegrateReservation(List<FlightOffer> flights, int userId, string userName)
         {
             int reservationsQuantity = 0;
             decimal TotalAmount = 0;
             try
             {
+                // Start the transaction
                 using (var transaction = _reserOrderContext.Database.BeginTransaction())
                 {
                     Users user = await _userContext.getUserById(userId);
                     List<Reservations> reservationsToSave = new List<Reservations>();
 
                     reservationsQuantity = flights.Count;
+                    // Loop through the list of flights
                     foreach (var flightOffer in flights)
                     {
                         Reservations reservation = new Reservations
@@ -47,7 +50,7 @@ namespace Proyecto1_CristhianBonilla.Services
                         TotalAmount += reservation.TotalPrice;
 
 
-
+                        // Loop through the list of itineraries
                         foreach (var itineraries in flightOffer.Itineraries)
                         {
                             Flights flight = new Flights
@@ -59,7 +62,7 @@ namespace Proyecto1_CristhianBonilla.Services
                                 Reservations = reservation,
                                 FlightScales = new List<FlightScales>()
                             };
-
+                            // Loop through the list of segments
                             foreach (var segment in itineraries.Segments)
                             {
                                 Scales scale = new Scales
@@ -84,7 +87,7 @@ namespace Proyecto1_CristhianBonilla.Services
                             }
                             reservation.Flights.Add(flight);
                         }
-
+                        // Loop through the list of travelerPricings
                         foreach (var pricing in flightOffer.TravelerPricings)
                         {
                             PassengerType passenger = new PassengerType
@@ -106,10 +109,13 @@ namespace Proyecto1_CristhianBonilla.Services
                         reservationsToSave.Add(reservation);
 
                     }
+                    // Save the reservation
                     user.Reservations = reservationsToSave;
                     user = await _userContext.updateUser(user);
                     await _reserOrderContext.SaveChangesAsync();
+                    // Commit the transaction
                     transaction.Commit();
+                    // Send the email to user
                     await _emailSender.SendEmailReservation(user.Name, user.Email, TotalAmount.ToString(), reservationsQuantity.ToString(), "¡Reservación de vuelo!");
                     return null;
                 }

@@ -7,6 +7,7 @@ using Proyecto1_CristhianBonilla.ViewModels;
 
 namespace Proyecto1_CristhianBonilla.Controllers
 {
+    //permitir acceso solo a usuarios autenticados
     [Authorize]
     public class HistoricalController : Controller
     {
@@ -17,7 +18,7 @@ namespace Proyecto1_CristhianBonilla.Controllers
             _reservationService = reservationService;
         }
 
-
+        //muestra las reservaciones realizadas por el usuario (histórico)
         [HttpGet]
         public async Task<IActionResult> Historical(List<Reservations> reservations)
         {

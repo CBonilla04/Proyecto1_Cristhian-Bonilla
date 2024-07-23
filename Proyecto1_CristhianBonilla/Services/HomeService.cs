@@ -16,7 +16,7 @@ namespace Proyecto1_CristhianBonilla.Services
         {
             _httpClient = httpClient;
         }
-
+        //Clase para deserializar la respuesta de la api de amadeus
         public async Task AuthenticateAsync(string clientId, string clientSecret)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "https://test.api.amadeus.com/v1/security/oauth2/token");
@@ -30,6 +30,7 @@ namespace Proyecto1_CristhianBonilla.Services
             _accessToken = tokenResponse.access_token;
         }
 
+        //Obtiene la lista de aeropuertos
         public async Task<List<OriginOptions>> GetAirportsAsync(string keyword)
         {
             try

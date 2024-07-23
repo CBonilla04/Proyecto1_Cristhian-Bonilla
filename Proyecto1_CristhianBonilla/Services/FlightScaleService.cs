@@ -12,6 +12,8 @@ namespace Proyecto1_CristhianBonilla.Services
         {
             _flyScale = flyScale;
         }
+
+        // Method to insert a new flight scale
         public async Task<FlightScales> insert(FlightScales flightScale)
         {
             try

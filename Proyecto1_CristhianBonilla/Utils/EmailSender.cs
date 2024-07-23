@@ -17,11 +17,15 @@ namespace Proyecto1_CristhianBonilla.Utils
             _env = env;
         }
 
+
+        //Envia correo de login
         public Task SendEmailLogin(string subject, Users user)
-        {
+        {   
+            //url para ir a buscar el template
             var templateUrl = Path.Combine(_env.ContentRootPath, "Utils", "EmailTemplates", "LogInTemplate.html");
             var emailToSend = new MimeMessage();
 
+            //agrega información para envio
             emailToSend.From.Add(MailboxAddress.Parse(_emailConfiguration.From));
             emailToSend.To.Add(MailboxAddress.Parse(user.Email));
             emailToSend.Subject = subject;
@@ -31,8 +35,10 @@ namespace Proyecto1_CristhianBonilla.Utils
                 .Replace("{{Name}}", user.Name)
                 .Replace("{{RegistrationDate}}", DateTime.Now.ToString("MMMM dd, yyyy"));
 
+            //convierte el template
             emailToSend.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = emailBody };
 
+            //envia el correo
             using (var smtp = new SmtpClient())
             {
                 smtp.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.Port, MailKit.Security.SecureSocketOptions.StartTls);
@@ -43,24 +49,26 @@ namespace Proyecto1_CristhianBonilla.Utils
             return Task.CompletedTask;
         }
 
+        //Envia correo de reserva
         public Task SendEmailReservation(string name, string email, string amount, string reservationsQuantity, string subject)
         {
             var templateUrl = Path.Combine(_env.ContentRootPath, "Utils", "EmailTemplates", "ReservationsTemplate.html");
             var emailToSend = new MimeMessage();
-
+            //agrega información para envio
             emailToSend.From.Add(MailboxAddress.Parse(_emailConfiguration.From));
             emailToSend.To.Add(MailboxAddress.Parse(email));
             emailToSend.Subject = subject;
-
+            //carga el template
             var templateContent = File.ReadAllText(templateUrl);
+            //reemplaza los valores del template
             var emailBody = templateContent
                 .Replace("{{Name}}", name)
                 .Replace("{{reservationsQuantity}}", reservationsQuantity)
                 .Replace("{{totalPrice}}", amount)
                 .Replace("{{reservationDate}}", DateTime.Now.ToString("MMMM dd, yyyy"));
-
+            //convierte el template
             emailToSend.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = emailBody };
-
+            //envia el correo
             using (var smtp = new SmtpClient())
             {
                 smtp.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.Port, MailKit.Security.SecureSocketOptions.StartTls);

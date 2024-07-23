@@ -6,16 +6,17 @@ using Proyecto1_CristhianBonilla.Utils;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//configuración de la base de datos
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
-
+//configuración de envío de correos
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IReservationOrder, ReservationOrder>();
@@ -30,12 +31,13 @@ builder.Services.AddControllersWithViews()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-
+//permite la autenticación de los usuarios
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
                 options.LoginPath = "/Login/LogIn"; 
             });
+//permite establecer un tiempo de inactividad para la sesión
 builder.Services.AddSession(options =>
 {   
     options.IdleTimeout = TimeSpan.FromMinutes(10);
@@ -43,7 +45,7 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
-
+//inicaliza la base de datos
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -55,14 +57,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
+//agrega rutas para los archivos de estilos
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "Source")),
     RequestPath = "/source"
 });
-
+//agrega rutas para los archivos de plantillas de correo
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -77,6 +79,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
+//Garantiza que los usuarios no puedan acceder a las rutas sin haber iniciado sesión
 app.Use(async (context, next) =>
 {
     var session = context.Session;
@@ -90,7 +93,7 @@ app.Use(async (context, next) =>
 
     await next.Invoke();
 });
-
+//vista inciial
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=LogIn}/{id?}");

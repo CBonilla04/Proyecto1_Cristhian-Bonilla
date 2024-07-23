@@ -34,7 +34,7 @@ namespace Proyecto1_CristhianBonilla.Services
                 return null;
             }
         }    
-
+        // Method to get a user by id
         public async Task<Users> GetUser(Users user, HttpContext httpContext)
         {
             HashData hashData = new HashData();
@@ -70,7 +70,7 @@ namespace Proyecto1_CristhianBonilla.Services
                 return null;
             }
         }
-
+        // Method to add a new user
         public async Task<Users> AddUser(Users user)
         {
             try
@@ -86,7 +86,7 @@ namespace Proyecto1_CristhianBonilla.Services
                 return null;
             }
         }
-
+        // Method to get all users
         public async Task<bool> EditUser(CurrentUser userUpdate)
         {
             try
@@ -115,7 +115,7 @@ namespace Proyecto1_CristhianBonilla.Services
             }
 
         }
-
+        //  Method to update a user
         public async Task<Users> updateUser(Users user)
         {
             try
