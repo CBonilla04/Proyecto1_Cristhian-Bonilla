@@ -37,7 +37,7 @@ namespace Proyecto1_CristhianBonilla.Services
                 Console.WriteLine(ex.Message);
             }
         }
-        public async Task<FlightOffersResponse> GetFlightOffersAsync(string origin, string destination, string departureDate, string returnDate, string adults, string children, string infants, string travelClass)
+        public async Task<FlightOffersResponse> GetFlightOffersAsync(string origin, string destination, string departureDate, string returnDate, string adults, string children, string infants, string travelClass, string notStop, string maxPrice)
         {
             var queryParameters = new List<string>();
 
@@ -80,12 +80,20 @@ namespace Proyecto1_CristhianBonilla.Services
             {
                 queryParameters.Add($"travelClass={travelClass}");
             }
+            if (!string.IsNullOrEmpty(notStop))
+            {
+                queryParameters.Add($"nonStop={notStop}");
+            }
+            if (!string.IsNullOrEmpty(maxPrice))
+            {
+                queryParameters.Add($"maxPrice={maxPrice}");
+            }
 
             var queryString = string.Join("&", queryParameters);
-            //var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?{queryString}&currencyCode=USD&max=10");
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=SYD&destinationLocationCode=BKK&departureDate=2024-08-10&returnDate=2024-08-12&adults=1&children=1&infants=1&travelClass=BUSINESS&nonStop=false&currencyCode=USD&max=10");
+                var request = new HttpRequestMessage(HttpMethod.Get, $"https://test.api.amadeus.com/v2/shopping/flight-offers?{queryString}&currencyCode=USD&max=50");
+
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
                 var response = await _httpClient.SendAsync(request);

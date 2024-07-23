@@ -10,6 +10,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <script src="/source/js/CartCount.js"></script>
+<script src="/source/js/Home.js"></script>
+<link rel="stylesheet" href="/source/css/Home.css" />
+<script>
+    function formatoFecha(fecha) {
+        if (!fecha) {
+            return '';
+        }
+        return new Date(fecha).toLocaleString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric' });
+    }
+
+</script>
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -67,40 +78,40 @@
             },
             placeholder: 'Seleccionar origen',
             allowClear: true
-        });  
+        });
 
         $("#buscarVuelos").on("click", function (e) {
             e.preventDefault();
             var form = $("form").serialize();
+            $("#loadingAnimation").show();
             $.ajax({
                 type: "GET",
                 url: "/Home/getFlights",
                 data: form,
                 success: function (data) {
-                    console.log("Datos recibidos:", data);
+                    $("#loadingAnimation").hide();
                     // Limpia el contenedor de resultados anteriores
                     $("#resultadosVuelos").empty();
                     // Itera sobre los datos recibidos para crear las tarjetas
                     data.data.forEach(function (flight, index) {
                         var cardHtml = `
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${flight.itineraries[0].segments[0].departure.iataCode} a ${flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}</h5>
-                                        <p class="card-text">Fecha de salida: ${flight.itineraries[0].segments[0].departure.at}</p>
-                                        <p class="card-text">Fecha de llegada: ${flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at}</p>
-                                        <p class="card-text">Boleto ida y vuelta: ${flight.itineraries.length > 1 ? 'Sí' : 'No'}</p>
-                                        <p class="card-text">Escalas: ${flight.itineraries[0]?.segments?.length || flight.itineraries[1]?.segments?.length > 1 ? 'Sí' : 'No'}
-                                            <button class="btn btn-primary btn-sm verEscalas" data-index="${index}" data-toggle="modal" data-target="#escalasModal">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </p>
-                                        <p class="card-text"><strong>Precio total: <strong>${flight.price.total} ${flight.price.currency}</strong></p>
-                                        <button class="btn btn-primary verDetalles" data-index="${index}" data-toggle="modal" data-target="#detalleVueloModal">Ver Detalles</button>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;
-                                        <button class="btn btn-success addToCar" data-index="${index}" data-flight='${JSON.stringify(flight)}'>Agregar a carrito</button>
-                                    </div>
-                                </div>
-                            `;
+                    <div class="col-md-6 mb-4">
+                        <div class="card" style="background-color: #356263; color: white;">
+                            <div class="card-body">
+                                <h5 class="card-title">${flight.itineraries[0].segments[0].departure.iataCode} a ${flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode}</h5>
+                                <p class="card-text">Fecha de salida: ${formatoFecha(flight.itineraries[0].segments[0].departure.at)}</p>
+                                <p class="card-text">Fecha de llegada: ${formatoFecha(flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at)}</p>
+                                <p class="card-text">Boleto ida y vuelta: ${flight.itineraries.length > 1 ? 'Sí' : 'No'}</p>
+                                <p class="card-text">Escalas: ${flight.itineraries[0]?.segments?.length > 1 ? 'Sí' : 'No'}
+                                    <i class="fas fa-eye verEscalas" style="cursor: pointer; color: deepskyblue;" data-index="${index}" data-toggle="modal" data-target="#escalasModal"></i>
+                                </p>
+                                <p class="card-text"><strong>Precio total: ${flight.price.total} ${flight.price.currency}</strong></p>
+                                <button class="btn btn-primary verDetalles" data-index="${index}" data-toggle="modal" data-target="#detalleVueloModal">Ver Detalles</button>
+                                <button class="btn btn-success addToCar" data-index="${index}" data-flight='${JSON.stringify(flight)}'>Agregar a carrito</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                         $("#resultadosVuelos").append(cardHtml);
                     });
 
@@ -122,7 +133,7 @@
                             }
                         });
                     });
-                        //añadir manejador de eventos para los botones de escalas
+                    //añadir manejador de eventos para los botones de escalas
                     $(".verEscalas").on("click", function () {
                         var index = $(this).data("index");
                         var itineraries = data.data[index].itineraries;
@@ -131,22 +142,22 @@
                         var durationHTML = convertIso8601DurationToTime(itineraries[0]?.duration);
                         $("#detalleEscalaModalLabel").html('Escalas' + (durationHTML ? ` - ${durationHTML}` : ''));
 
-                        $("#verEscalas").html(''); 
+                        $("#verEscalas").html('');
 
                         itineraries[0]?.segments.forEach(function (scale, index) {
                             var cardHtml = `
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Ida - ${index + 1}</h5>
-                                        <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
-                                        <p class="card-text">Fecha de salida: ${scale.departure.at}</p>
-                                        <p class="card-text">Fecha de llegada: ${scale.arrival.at}</p>
-                                        <p class="card-text">Número de vuelo: ${scale.number}</p>
-                                        <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
-                                        <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
-                                    </div>
-                                </div>
-                            `;
+                                        <div class="card mt-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Ida - ${index + 1}</h5>
+                                                <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
+                                                <p class="card-text">Fecha de salida: ${formatoFecha(scale.departure.at)}</p>
+                                                <p class="card-text">Fecha de llegada: ${formatoFecha(scale.arrival.at)}</p>
+                                                <p class="card-text">Número de vuelo: ${scale.number}</p>
+                                                <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
+                                                <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
+                                            </div>
+                                        </div>
+                                    `;
                             $("#verEscalas").append(cardHtml);
                         });
 
@@ -157,18 +168,18 @@
 
                         itineraries[1]?.segments.forEach(function (scale, index) {
                             var cardHtml = `
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Regreso - ${index + 1}</h5>
-                                        <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
-                                        <p class="card-text">Fecha de salida: ${scale.departure.at}</p>
-                                        <p class="card-text">Fecha de llegada: ${scale.arrival.at}</p>
-                                        <p class="card-text">Número de vuelo: ${scale.number}</p>
-                                        <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
-                                        <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
-                                    </div>
-                                </div>
-                            `;
+                                        <div class="card mt-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Regreso - ${index + 1}</h5>
+                                                <h8 class="card-subtitle mb-2 text-muted">${scale.departure.iataCode} a ${scale.arrival.iataCode}</h8>
+                                                <p class="card-text">Fecha de salida: ${formatoFecha(scale.departure.at)}</p>
+                                                <p class="card-text">Fecha de llegada: ${formatoFecha(scale.arrival.at)}</p>
+                                                <p class="card-text">Número de vuelo: ${scale.number}</p>
+                                                <p class="card-text">Duración: ${convertIso8601DurationToTime(scale.duration)}</p>
+                                                <p class="card-text">Código de operadora: ${scale.carrierCode}</p>
+                                            </div>
+                                        </div>
+                                    `;
                             $("#verEscalas").append(cardHtml);
                         });
                     });
@@ -183,33 +194,33 @@
                         prices.forEach(function (price, index) {
                             pricesDetail +=
                                 `
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
-                                        <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
-                                        <p class="card-text">Precio base: ${price.price.base} USD</p>
-                                            <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
-                                        <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
-                                    </div>
-                                </div>
-                            `;
+                                        <div class="card mt-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Tiquete ${(index + 1)} - ${convertPassengerType(price.travelerType)}</h5>
+                                                <p class="card-text">Clase: ${price.fareDetailsBySegment[0]?.cabin}</p>
+                                                <p class="card-text">Precio base: ${price.price.base} USD</p>
+                                                    <p class="card-text">Impuesos y otros : ${price.price.total - price.price.base} USD</p>
+                                                <p class="card-text">Precio total: <b>${price.price.total} USD</b></p>
+                                            </div>
+                                        </div>
+                                    `;
                         });
 
                         var detallesHtml = `
-                            <p><strong>Origen:</strong> ${flight.itineraries[0].segments[0].departure.iataCode}</p>
-                            <p><strong>Destino:</strong> ${flight.itineraries[0].segments[0].arrival.iataCode}</p>
-                            <p><strong>Duración:</strong> ${convertIso8601DurationToTime(flight.itineraries[0].duration)}</p>
-                            <h4 class="subtitle">Detalle de pago:</h4>
-                            ${pricesDetail}
-                            <p><strong>Precio Total:</strong> ${flight.price.total} ${flight.price.currency}</p>
-                            <p><strong>Aerolínea:</strong> ${flight.validatingAirlineCodes}</p>
-                            <!-- Agrega más detalles según sea necesario -->
-                        `;
+                                    <p><strong>Origen:</strong> ${flight.itineraries[0].segments[0].departure.iataCode}</p>
+                                    <p><strong>Destino:</strong> ${flight.itineraries[0].segments[0].arrival.iataCode}</p>
+                                    <p><strong>Duración:</strong> ${convertIso8601DurationToTime(flight.itineraries[0].duration)}</p>
+                                    <h4 class="subtitle">Detalle de pago:</h4>
+                                    ${pricesDetail}
+                                    <p><strong>Precio Total:</strong> ${flight.price.total} ${flight.price.currency}</p>
+                                    <p><strong>Aerolínea:</strong> ${flight.validatingAirlineCodes}</p>
+                                    <!-- Agrega más detalles según sea necesario -->
+                                `;
                         $("#detalleVueloContent").html(detallesHtml);
                     });
                 },
                 error: function (xhr, status, error) {
-                    console.error("Error en la solicitud:", error);
+                    $("#loadingAnimation").hide();
                 }
             });
         });
@@ -227,99 +238,137 @@
 </script>
 
 <div class="container">
-    <form asp-action="BuscarVuelos" method="post">
+
+    <div class="container mt-4">
         <div class="row">
-            <div class="col-sm-3">
-                <div class="col-sm-12">
-                    <label asp-for="origin" class="col-form-label">Origen:</label>
-                </div>
-                <div class="col-sm-12">
-                    <select asp-for="origin" class="form-control" id="origen" name="origin">
-                        <option value="">Seleccionar origen</option>
-                        <!-- Opciones se llenarán dinámicamente -->
-                    </select>
-                    <span asp-validation-for="origin" class="text-danger"></span>
-                </div>
-                <div class="col-sm-12">
-                    <label asp-for="destination" class="col-form-label">Destino:</label>
-                </div>
-                <div class="col-sm-12">
-                    <select asp-for="destination" class="form-control" id="destino" name="destination">
-                        <option value="">Seleccionar destino</option>
-                        <!-- Opciones se llenarán dinámicamente -->
-                    </select>
-                    <span asp-validation-for="destination" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="col-sm-12">
-                    <label asp-for="departureDate" class="col-form-label">Salida:</label>
-                </div>
-                <div class="col-sm-12">
-                    <input asp-for="departureDate" type="date" class="form-control" id="salida" name="departureDate">
-                    <span asp-validation-for="departureDate" class="text-danger"></span>
-                </div>
-                <div class="col-sm-12">
-                    <label asp-for="returnDate" class="col-form-label">Regreso:</label>
-                </div>
-                <div class="col-sm-12">
-                    <input asp-for="returnDate" type="date" class="form-control" id="regreso" name="returnDate">
-                    <span asp-validation-for="returnDate" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="col-sm-12">
-                    <label asp-for="adults" class="col-form-label">Adultos:</label>
-                </div>
-                <div class="col-sm-12">
-                    <select asp-for="adults" class="form-control" id="adults" name="adults">
-                        <option value="">Seleccionar opción</option>
-                        @for (int i = 1; i <= 10; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    </select>
-                    <span asp-validation-for="adults" class="text-danger"></span>
-                </div>
-                <div class="col-sm-12">
-                    <label asp-for="children" class="col-form-label">Niños:</label>
-                </div>
-                <div class="col-sm-12">
-                    <select asp-for="children" class="form-control" id="children" name="children">
-                        <option value="">Seleccionar opción</option>
-                        @for (int i = 1; i <= 10; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    </select>
-                    <span asp-validation-for="children" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="col-sm-12">
-                    <label asp-for="infants" class="col-form-label">Bebés:</label>
-                </div>
-                <div class="col-sm-12">
-                    <select asp-for="infants" class="form-control" id="infants" name="infants">
-                        <option value="">Seleccionar opción</option>
-                        @for (int i = 1; i <= 10; i++)
-                        {
-                            <option value="@i">@i</option>
-                        }
-                    </select>
-                    <span asp-validation-for="infants" class="text-danger"></span>
-                </div>
+            <div class="col text-center">
+                <h2>Filtros de búsqueda</h2>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <button type="submit" class="btn btn-success" id="buscarVuelos">Buscar</button>
+        <form asp-action="BuscarVuelos" method="post">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <label asp-for="origin" class="col-form-label"><b>Origen:</b><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="origin" class="form-control" id="origen" name="origin" required>
+                            <option value="">Seleccionar origen</option>
+                        </select>
+                        <span asp-validation-for="origin" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="destination" class="col-form-label"><b>Destino:</b><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="destination" class="form-control" id="destino" name="destination" required>
+                            <option value="">Seleccionar destino</option>
+                        </select>
+                        <span asp-validation-for="destination" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="notStop" class="col-form-label"><b>¿Directo?:</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <input asp-for="notStop" type="checkbox" class="form-check-input" id="directo" name="notStop">
+                        <span asp-validation-for="notStop" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <label asp-for="departureDate" class="col-form-label"><b>Salida:</b><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <input asp-for="departureDate" type="date" class="form-control" id="salida" name="departureDate" required>
+                        <span asp-validation-for="departureDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="returnDate" class="col-form-label"><b>Regreso:</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <input asp-for="returnDate" type="date" class="form-control" id="regreso" name="returnDate">
+                        <span asp-validation-for="returnDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="maxPrice" class="col-form-label"><b>Precio Máximo ($):</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <input asp-for="maxPrice" type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="Precio Máximo">
+                        <span asp-validation-for="maxPrice" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <label asp-for="adults" class="col-form-label"><b>Adultos:</b><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="adults" class="form-control" id="adults" name="adults" required>
+                            <option value="">Seleccionar opción</option>
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                        <span asp-validation-for="adults" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="children" class="col-form-label"><b>Niños:</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="children" class="form-control" id="children" name="children">
+                            <option value="">Seleccionar opción</option>
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                        <span asp-validation-for="children" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <label asp-for="infants" class="col-form-label"><b>Bebés:</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="infants" class="form-control" id="infants" name="infants">
+                            <option value="">Seleccionar opción</option>
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                        <span asp-validation-for="infants" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-12">
+                        <label asp-for="travelClass" class="col-form-label"><b>Clase:</b></label>
+                    </div>
+                    <div class="col-sm-12">
+                        <select asp-for="travelClass" class="form-control" id="travelClass" name="travelClass">
+                            <option value="">Seleccionar opción</option>
+                            <option value="ECONOMY">Económica</option>
+                            <option value="PREMIUM_ECONOMY">Económica premium</option>
+                            <option value="BUSINESS">Negocios</option>
+                            <option value="FIRST">Primera</option>
+                        </select>
+                        <span asp-validation-for="travelClass" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </form>
-    <div class="row">
-        <div id="resultadosVuelos" class="col-sm-12">
-            
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-success" id="buscarVuelos">Buscar</button>
+                </div>
+            </div>
+        </form>
+        @if (ViewData["Message"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewData["Message"]
+            </div>
+        }
+    </div>
+    <div class="container mt-4">
+        <div id="resultadosVuelos" class="row">
         </div>
     </div>
 </div>
@@ -359,5 +408,12 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="loadingAnimation" style="display:none;">
+    <div class="spinner-border" role="status">
+        <i class="fas fa-plane" style="color: blue; font-size: 30px;"></i>
+        <span class="sr-only">Cargando...</span>
     </div>
 </div>

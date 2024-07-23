@@ -30,6 +30,10 @@ namespace Proyecto1_CristhianBonilla.Utils
                 .Property(r => r.IdReservation)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<Users>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
 
             base.OnModelCreating(modelBuilder);
         }

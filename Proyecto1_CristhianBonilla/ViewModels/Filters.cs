@@ -9,9 +9,12 @@
         public int adults { get; set; }
         public int children { get; set; }
         public int infants { get; set; }
-        public bool nonStop { get; set; }
 
         public string travelClass { get; set; }
+
+        public bool notStop { get; set; }
+
+        public decimal maxPrice { get; set; }
         public List<OriginOptions> originOptions { get; set; }
 
         public Filters()
@@ -24,8 +27,9 @@
             children = 0;
             infants = 0;
             originOptions = new List<OriginOptions>();
-            nonStop = false;
+            notStop = false;
             travelClass = "ECONOMY";
+            maxPrice = 0;
         }
 
     }

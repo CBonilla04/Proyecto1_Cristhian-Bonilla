@@ -36,18 +36,32 @@ namespace Proyecto1_CristhianBonilla.Controllers
         [HttpGet]
         public async Task<IActionResult> getFlights(Filters model)
         {
+            try
+            {
             await _amadeusApiService.AuthenticateAsync("0pYa9rS3KzA0aFecnSAgU8DUI3BOmBql", "bG6OnyjSJclDij03");
             var flightOffers = await _amadeusApiService.GetFlightOffersAsync(
-                    "BKK",//model.origin,
-                    "MAD",//model.destination, 
+                    model.origin,
+                    model.destination, 
                     model.departureDate.ToString("yyyy-MM-dd"), 
                     model.returnDate.ToString("yyyy-MM-dd"), 
                     model.adults.ToString(), 
                     model.children.ToString(), 
                     model.infants.ToString(), 
-                    model.travelClass.ToString());
-
+                    model.travelClass != null ? model.travelClass.ToString() : "",
+                    model.notStop ? "true" : "false",
+                    model.maxPrice >= 1 ? model.maxPrice.ToString() : "" 
+                    );
+            if(flightOffers == null)
+            {
+                ViewData["Message"] = "No se encontraron resultados";
+            }
             return Json(flightOffers);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { error = ex.Message });
+            }
         }
         [HttpPost]
         public IActionResult AddToCart([FromBody] FlightOffer flight)
